@@ -9,7 +9,9 @@ class RecipesService {
     return await dbContext.Recipes.create(recipeData);
   }
   async get(query = {}) {
-    let recipes = await dbContext.Recipes.find(query);
+    //NOTE:  I changed the Server to only ask for deleted=false
+    let recipes = await dbContext.Recipes.find({ ...query, 'deleted': false });
+    // let recipes = await dbContext.Recipes.find({ 'deleted': false });
     return recipes;
   }
   async update(id, updateData) {
@@ -37,7 +39,7 @@ class RecipesService {
       aRecipe.deleted = true;
       return await dbContext.Recipes.findByIdAndUpdate(id, aRecipe, { new: true });
     } else {
-      throw new BadRequest("This recipe is already deleted ");
+      throw new BadRequest("This recipe is already deleted");
     }
 
   }

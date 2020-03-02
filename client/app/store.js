@@ -1,12 +1,24 @@
 /** The active state of data for the application at any given point of time
  * @type {{[x:string]: any}}
  */
-let _state = {};
+import { Recipe } from "./models/Recipe.js"
+
+let _state = {
+  recipes: [],
+  activeRecipe: [],
+  comments: [],
+  favorites: []
+};
 
 /** Collection of listeners to be called based on keyed state changes
  * @type {{[x:string]: function[]}}
  */
-let _listeners = {};
+let _listeners = {
+  recipes: [],
+  activeRecipe: [],
+  comments: [],
+  favorites: []
+};
 
 // NOTE You should not need to change the code from this point down
 
@@ -17,7 +29,7 @@ let _listeners = {};
 function _validateProp(prop) {
   if (!_state.hasOwnProperty(prop) || !Array.isArray(_listeners[prop])) {
     throw new Error(
-      `Unkown property ${prop}, please review your state and listeners`
+      `Unknown property ${prop}, please review your state and listeners`
     );
   }
 }
@@ -38,6 +50,7 @@ class Store {
    * Provides access to application state data
    */
   get State() {
+
     return _state;
   }
   /**
@@ -63,5 +76,5 @@ class Store {
   }
 }
 
-const store = new Store();
-export default store;
+const STORE = new Store();
+export default STORE;

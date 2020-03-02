@@ -9,16 +9,12 @@ class FavoritesService {
     return await dbContext.Favorites.create(favoriteData);
   }
   async get(query = {}) {
-    let favorites = await dbContext.Favorites.find(query);
+    //NOTE: should this query be passed in from the Controller?? How?
+    let favorites = await dbContext.Favorites.find({ ...query, 'deleted': false });
+    // let favorites = await dbContext.Favorites.find({ 'deleted': false });
+    // let favorites = await dbContext.Favorites.find(query + '&"deleted":false');
+    //TODO:  Figure out how to strip out deleted, so get can be used for all
     return favorites;
-  }
-  async update(id, updateData) {
-    // do some business logic
-    let aFavorite = await this.getById(id);
-    // @ts-ignore
-    if (!aFavorite.deleted) {
-      return await dbContext.Favorites.findByIdAndUpdate(id, updateData, { new: true });
-    }
   }
 
   async getById(id) {
@@ -27,6 +23,14 @@ class FavoritesService {
       throw new BadRequest("Invalid Id");
     }
     return favorite;
+  }
+  async update(id, updateData) {
+    // do some business logic
+    let aFavorite = await this.getById(id);
+    // @ts-ignore
+    if (!aFavorite.deleted) {
+      return await dbContext.Favorites.findByIdAndUpdate(id, updateData, { new: true });
+    }
   }
 
   async delete(id) {

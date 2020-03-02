@@ -9,9 +9,11 @@ export class CommentsController extends BaseController {
     super("api/comments/");
     this.router = express
       .Router()
-      .get("", this.getAll)
       // NOTE: Beyond this point all routes require Authorization tokens (the user must be logged in)
       .use(Auth0Provider.getAuthorizedUserInfo)
+      .get("", this.getAll)
+      .get("/:recipeId", this.getByRecipeId)
+      .get("")
       .post("", this.create)
       .put("/:id", this.edit)
       .delete("/:id", this.delete);
@@ -25,15 +27,15 @@ export class CommentsController extends BaseController {
       next(error);
     }
   }
-
-  async edit(req, res, next) {
+  async getByRecipeId(req, res, next) {
     try {
-      let editedData = await commentService.update(req.query, req.body)
-      return res.send(editedData)
+      let data = await commentService.get({ "recipeId": req.params.recipeId });
+      return res.send(data);
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
+
   async create(req, res, next) {
     try {
 
@@ -45,6 +47,15 @@ export class CommentsController extends BaseController {
       next(error);
     }
   }
+  async edit(req, res, next) {
+    try {
+      let editedData = await commentService.update(req.query, req.body)
+      return res.send(editedData)
+    } catch (error) {
+      next(error)
+    }
+  }
+
 
   async delete(req, res, next) {
     try {

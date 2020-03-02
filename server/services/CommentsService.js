@@ -8,8 +8,18 @@ class CommentsService {
     return await dbContext.Comments.create(CommentData);
   }
   async get(query = {}) {
-    let Comments = await dbContext.Comments.find(query);
+    //TODO: check for deleted
+    let Comments = await dbContext.Comments.find({ ...query, 'deleted': false });
     return Comments;
+
+  }
+
+  async getByRecipeId(recipeId) {
+    let comment = await dbContext.Comments.find({ 'recipeId': recipeId });
+    if (!comment) {
+      throw new BadRequest("Invalid Id");
+    }
+    return comment;
   }
   async update(id, updateData) {
     // do some business logic
