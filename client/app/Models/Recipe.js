@@ -1,5 +1,7 @@
 import { AuthController } from "../auth/AuthController.js";
 import { Auth0Provider } from "../auth/Auth0Provider.js";
+import { favoritesService } from "../services/FavoritesService.js"
+
 
 
 function avatarTemplate(name, picture) {
@@ -11,10 +13,10 @@ function avatarTemplate(name, picture) {
     ;
 }
 
-function favoritesAndDeleteTemplate(recipeId) {
+function favoritesAndDeleteTemplate(recipeId, color) {
   return  /*html*/ `
      <div class="card-body d-flex justify-content-between">
-          <i class="fas fa-heart" onclick="app.recipesController.favoriteRecipe('${recipeId}')"></i>
+          <i class="fas fa-heart ${color}" onclick="app.favoritesController.toggleFavorite('${recipeId}')"></i>
           <i class="fas fa-trash-alt fa-lg trash" onclick="app.recipesController.deleteRecipe('${recipeId}')"></i>
       </div>
   `
@@ -38,7 +40,12 @@ export class Recipe {
     let userAvatar = avatarTemplate(this.creatorName, this.creatorPicture);
     let favAndDelete = "";
     if (Auth0Provider.userInfo.sub == this.creatorId) {
-      favAndDelete += favoritesAndDeleteTemplate(this.recipeId);
+      let color = 'favorite-color-black';
+      if (favoritesService.findFavoriteByRecipeId(this.recipeId)) {
+        color = 'favorite-color-green';
+      }
+      favAndDelete += favoritesAndDeleteTemplate(this.recipeId, color);
+      // favAndDelete += favoritesAndDeleteTemplate(this.recipeId);
     }
 
     return /*html*/ `
@@ -88,7 +95,7 @@ export class Recipe {
           
           <div class="form-group form-row align-self-end myBtn">
             <button class="btn btn-primary" type="submit">Submit</button>
-            <button class="btn btn-danger" type="reset" onclick="app.recipesController.showAllRecipes()">Cancel</button>
+            <button class="btn btn-danger" type="reset" onclick="app.recipesController.hideForm()">Cancel</button>
           </div>
         </div>
 

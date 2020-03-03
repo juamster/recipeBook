@@ -1,8 +1,9 @@
 export class Favorites {
   constructor(data) {
     this.recipeId = data.recipeId;
-    this.creatorId = data.creatorId;
+    this.userId = data.userId;
     this.favoriteId = data.id;
+    this.id = data.id;
   }
 
   get ListTemplate() {

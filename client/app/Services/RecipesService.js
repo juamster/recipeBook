@@ -4,17 +4,18 @@ import { resource } from "../resource.js"
 
 // The services job is to control data access
 class RecipesService {
-  setActiveRecipe(recipeId) {
-    let aRecipe = STORE.State.recipes.find(r => r.id == recipeId);
-    if (!aRecipe) {
-      throw new Error("Invalid Id");
-    }
-    // TODO check project members
-    STORE.State.activeRecipe = aRecipe;
-  }
+  // setActiveRecipe(recipeId) {
+  //   let aRecipe = STORE.State.recipes.find(r => r.id == recipeId);
+  //   if (!aRecipe) {
+  //     throw new Error("Invalid Id");
+  //   }
+  //   // TODO check project members
+  //   STORE.State.activeRecipe = aRecipe;
+  // }
 
   async getRecipeById(recipeId) {
-    let aRecipe = await STORE.State.recipes.find(r => r.id == recipeId);
+    let data = await resource.get("/api/recipes/" + recipeId);
+    let aRecipe = data.map(r => new Recipe(r));
     if (!aRecipe) {
       throw new Error("Invalid Id");
     }
@@ -23,9 +24,7 @@ class RecipesService {
   async createRecipe(recipeData) {
 
     let data = await resource.post("/api/recipes/", recipeData);
-
     let recipe = new Recipe(data);
-
     STORE.State.recipes.push(recipe);
     STORE.commit("recipes", STORE.State.recipes);
   }
@@ -53,14 +52,11 @@ class RecipesService {
   }
 
   async getRecipe() {
-
-    let data = await resource.get("api/recipes?deleted=false");
-
-    // let response = await fetch("/api/recipes");
-    //let data = await response.json();
+    // let data = await resource.get("api/recipes?deleted=false");
+    let data = await resource.get("api/recipes");
     console.log(data);
     let recipes = data.map(r => new Recipe(r));
-    // recipes.reverse();
+    recipes.reverse();
     STORE.commit("recipes", recipes);
     console.log("STORE.state.recipes: ", STORE.State.recipes);
   }

@@ -2,6 +2,7 @@
 import { resource } from "./../resource.js";
 import { Auth0Provider } from "../auth/Auth0Provider.js";
 import { recipesService } from "../services/RecipesService.js"
+import { favoritesService } from "../services/FavoritesService.js"
 import STORE from "../store.js";
 import { Recipe } from "../Models/Recipe.js";
 
@@ -15,8 +16,6 @@ function drawRecipes() {
   document.getElementById("recipe-main").innerHTML = template;
 }
 
-
-
 export class RecipesController {
 
   constructor() {
@@ -24,12 +23,16 @@ export class RecipesController {
     // NOTE: actually it's ok to getRecipes without logging,
     //  but later, we would need to check this out before //// getting favorites, This is how you would do it if you
     // wanted to make sure that the user was logged in.
-    Auth0Provider.onAuth(this.getRecipes);
+    // Auth0Provider.onAuth(this.getRecipes);
     STORE.subscribe("recipes", drawRecipes);
   }
 
   getRecipeForm() {
     document.getElementById("recipe-form").innerHTML = Recipe.formTemplate;
+  }
+
+  hideForm() {
+    document.getElementById("recipe-form").innerHTML = "";
   }
 
   showAllRecipes() {
@@ -47,18 +50,22 @@ export class RecipesController {
     document.getElementById("recipe-main").innerHTML = template;
   }
 
-  showMyFavoriteRecipes() {
+  async showMyFavoriteRecipes() {
     console.log("drawing only user favorited Recipes")
     let template = "";
-    STORE.State.favorites.forEach(f => {
+    STORE.State.favorites.forEach(async f => {
       // check to see if this favorite is one of mine
-      if (f.creatorId == Auth0Provider.userInfo.sub) {
+      console.log("fav userId", f.userId)
+      console.log("auth0", Auth0Provider.userInfo.sub)
+      if (f.userId == Auth0Provider.userInfo.sub) {
+        console.log("This is a match");
         // get recipe by ID f.recipeId then
         // use that recipe's list template
-        // @ts-ignore
-        let aRecipe = this.getRecipeById(f.recipeId);
-        template += aRecipe.ListTemplate;
+        let recipeId = f.recipeId;
+        let recipe = STORE.State.recipes.find(r => r.recipeId == recipeId)
+        template += recipe.ListTemplate;
       }
+
     });
     document.getElementById("recipe-main").innerHTML = template;
   }
@@ -108,43 +115,33 @@ export class RecipesController {
 
   async deleteRecipe(recipeId) {
     try {
-      // @ts-ignore
+      // If you delete the recipe, you should also delete the favorites
+      // TODO: also delete comments
+      console.log("in delete: going to delete the favorite and recipe", recipeId);
+      await favoritesService.deleteFavoriteByRecipeId(recipeId);
       await recipesService.deleteRecipe(recipeId);
     } catch (error) {
       console.log(error);
     }
   }
 
-  // async favRecipe(recipeId) {
-  //   console.log("This is a favorite")
-  //   try {
-  //     await recipesService.favRecipe(recipeId);
-  //     drawRecipes();
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  // }
-  // async viewRecipe(recipeId) {
-  //   try {
-  //     await recipesService.setActiveRecipe(recipeId);
-  //     drawRecipes();
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  // }
 
-  static async getRecipeById(recipeId) {
-    let aRecipe = await recipesService.getRecipeById(recipeId);
-    console.log("getting a recipe: ", aRecipe);
-    return aRecipe;
+  async getRecipeById(recipeId) {
+    try {
+      let aRecipe = await recipesService.getRecipeById(recipeId);
+      console.log("getting a recipe: ", aRecipe);
+      return aRecipe;
+    } catch (error) {
+      console.log(error);
+    }
+
+
   }
 
   async getRecipes() {
     console.log("getting the recipes");
     try {
-      //NOTE: this really belongs in a service - like fetch, but includes the bearer token, 
       await recipesService.getRecipe();
-      // await resource.get("api/recipes");
       console.log(Auth0Provider)
     } catch (error) {
 

@@ -13,7 +13,8 @@ export class RecipesController extends BaseController {
       .get("", this.getAll)
       // NOTE: Beyond this point all routes require Authorization tokens (the user must be logged in)
       .use(Auth0Provider.getAuthorizedUserInfo)
-      .get("/:id/comments", this.getAllCommentsByRecipeId)
+      // .get("/:id/comments", this.getAllCommentsByRecipeId)
+      .get("/:id", this.getByRecipeId)
       .post("", this.create)
       .put("/:id", this.editRecipe)
       .delete("/:id", this.delete);
@@ -41,10 +42,19 @@ export class RecipesController extends BaseController {
       next(error);
     }
   }
+  // NOTE:  I was doing something with comments, but don't remember 
+  // async getAllCommentsByRecipeId(req, res, next) {
+  //   try {
+  //     let comments = await commentService.getByRecipeId(req.params.id);
+  //     res.send(comments);
+  //   } catch (e) {
+  //     next(e);
+  //   }
+  // }
 
-  async getAllCommentsByRecipeId(req, res, next) {
+  async getByRecipeId(req, res, next) {
     try {
-      let comments = await commentService.getByRecipeId(req.params.recipeId);
+      let comments = await recipeService.getById(req.params.id);
       res.send(comments);
     } catch (e) {
       next(e);

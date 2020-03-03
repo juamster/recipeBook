@@ -10,10 +10,9 @@ class FavoritesService {
   }
   async get(query = {}) {
     //NOTE: should this query be passed in from the Controller?? How?
+
     let favorites = await dbContext.Favorites.find({ ...query, 'deleted': false });
-    // let favorites = await dbContext.Favorites.find({ 'deleted': false });
-    // let favorites = await dbContext.Favorites.find(query + '&"deleted":false');
-    //TODO:  Figure out how to strip out deleted, so get can be used for all
+
     return favorites;
   }
 

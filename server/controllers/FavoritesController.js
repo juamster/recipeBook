@@ -22,6 +22,7 @@ export class FavoritesController extends BaseController {
   async getAll(req, res, next) {
     try {
       // let data = await favoriteService.get({ "deleted": false });
+
       let data = await favoriteService.get(req.query);
       return res.send(data);
     } catch (error) {

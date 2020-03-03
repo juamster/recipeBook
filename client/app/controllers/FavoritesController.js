@@ -11,7 +11,8 @@ export class FavoritesController {
     // NOTE: actually it's ok to getRecipes without logging,
     //  but later, we would need to check this out before //// getting favorites, This is how you would do it if you
     // wanted to make sure that the user was logged in.
-
+    Auth0Provider.onAuth(this.getFavorites);
+    // Yes, I do mean to register updateRecipes
     STORE.subscribe("favorites", RecipesController.updateRecipes);
   }
 
@@ -24,16 +25,36 @@ export class FavoritesController {
         // @ts-ignore
         recipeId: recipeId
       };
+      console.log("creating a favorite");
       await favoritesService.create(favoriteData);
     } catch (error) {
       alert(error);
     }
   }
 
-  async deleteFavorite(favoriteId) {
+
+
+  async getFavorites() {
+    try {
+      await favoritesService.getFavorites();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  toggleFavorite(recipeId) {
+    let fav = favoritesService.findFavoriteByRecipeId(recipeId)
+    if (fav) {
+      this.deleteFavorite(fav)
+    } else {
+      this.createFavorite(recipeId)
+    }
+  }
+
+  async deleteFavorite(favorite) {
     try {
       // @ts-ignore
-      await favoritesService.deleteRecipe(favoriteId);
+      await favoritesService.deleteFavorite(favorite);
     } catch (error) {
       console.log(error);
     }
