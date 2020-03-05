@@ -1,17 +1,13 @@
 import { resource } from "../resource.js";
 import { Auth0Provider } from "../auth/Auth0Provider.js";
-import { favoritesService } from "../services/FavoritesService.js"
+import { commentsService } from "../services/CommentsService.js"
 import STORE from "../store.js";
-import { Favorites } from "../Models/Favorites.js";
+import { Comments } from "../Models/Comments.js";
 import { RecipesController } from "./RecipesController.js"
 import { recipesService } from "../services/RecipesService.js";
 
 
-function favoritesTemplate(recipeId, color) {
-  return  /*html*/ `
-      <i class="fas fa-heart ${color}" onclick="app.favoritesController.toggleFavorite('${recipeId}')"></i>
-  `;
-}
+
 
 
 export class FavoritesController {

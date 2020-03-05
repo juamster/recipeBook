@@ -11,7 +11,7 @@ class RecipesService {
   async get(query = {}) {
     //NOTE:  I changed the Server to only ask for deleted=false
     let recipes = await dbContext.Recipes.find({ ...query, 'deleted': false });
-    // let recipes = await dbContext.Recipes.find({ 'deleted': false });
+
     return recipes;
   }
   async update(id, updateData) {

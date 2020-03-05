@@ -16,41 +16,20 @@ class FavoritesService {
   async getFavorites() {
 
     let data = await resource.get("api/favorites");
-    console.log(data);
-    // let favorite = data.map(f => new Favorites(f));
+    console.log("**** In getFavorites - these are the favorites from the Database: ", data);
     let favorites = {}
     data.forEach(f => favorites[f.recipeId] = f)
 
-    // {
-    //   "dsjaj0f9wj2390fja": true,
-    //   "dsjaj0f9wj2390fja": true,
-    //   "dsjaj0f9wj2390fja": true,
-    //   "dsjaj0f9wj2390fja": true,
-    // }
-
-    // recipes.reverse();
     STORE.commit("favorites", favorites);
-    console.log("STORE.state.favorites: ", STORE.State.favorites);
-  }
-
-  async deleteFavoriteByRecipeId(recipeId) {
-    // first go and get the favorite that matches this recipeId
-    console.log("the recipe id is: ", recipeId);
-    let data = await resource.get("/api/favorites?recipeId=" + recipeId);
-    let favorite = data.map(f => new Favorites(f));
-    console.log("got a favorite based on recipeId", favorite.favoriteId);
-    this.deleteFavorite(favorite.favoriteId);
+    console.log("**** In getFavorites - STORE.state.favorites: ", STORE.State.favorites);
   }
 
   async deleteFavorite(favorite) {
     let data = await resource.delete("/api/favorites/" + favorite.id);
     delete STORE.State.favorites[favorite.recipeId]
+    // console.log("**** in deleteFavorites: this is what's in favorites", STORE.State.Favorites)
 
-    // let i = STORE.State.favorites.findIndex(f => f.favoriteId == favoriteId);
-    // if (i != -1) {
-    //   STORE.State.favorites.splice(i, 1);
     STORE.commit("favorites", STORE.State.favorites);
-    // }
   }
 
   findFavoriteByRecipeId(recipeId) {
@@ -58,7 +37,5 @@ class FavoritesService {
   }
 
 }
-
-
 
 export const favoritesService = new FavoritesService();

@@ -142,6 +142,7 @@ export class Auth0Provider {
 
   static async AUTHENTICATED() {
     try {
+      this.isAuthenticated = true
       this.user = await this.auth0Client.getUser();
       await this.getUserData();
       this.authListeners.forEach(cb => {
@@ -163,7 +164,7 @@ export class Auth0Provider {
 
   static __b64DecodeUnicode(str) {
     return decodeURIComponent(
-      atob(str).replace(/(.)/g, function(m, p) {
+      atob(str).replace(/(.)/g, function (m, p) {
         var code = p
           .charCodeAt(0)
           .toString(16)

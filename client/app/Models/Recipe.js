@@ -13,15 +13,7 @@ function avatarTemplate(name, picture) {
     ;
 }
 
-function favoritesAndDeleteTemplate(recipeId, color) {
-  return  /*html*/ `
-     <div class="card-body d-flex justify-content-between">
-          <i class="fas fa-heart ${color}" onclick="app.favoritesController.toggleFavorite('${recipeId}')"></i>
-          <i class="fas fa-trash-alt fa-lg trash" onclick="app.recipesController.deleteRecipe('${recipeId}')"></i>
-      </div>
-  `
-    ;
-}
+
 export class Recipe {
   constructor(data) {
     this.name = data.name;
@@ -38,26 +30,41 @@ export class Recipe {
 
   get ListTemplate() {
     let userAvatar = avatarTemplate(this.creatorName, this.creatorPicture);
-    let favAndDelete = "";
-    if (Auth0Provider.userInfo.sub == this.creatorId) {
-      let color = 'favorite-color-black';
-      if (favoritesService.findFavoriteByRecipeId(this.recipeId)) {
-        color = 'favorite-color-green';
-      }
-      favAndDelete += favoritesAndDeleteTemplate(this.recipeId, color);
-      // favAndDelete += favoritesAndDeleteTemplate(this.recipeId);
-    }
 
+    let loggedIn = "";
+
+    let img_template = `<img class="card-img-top" src="${this.imageURL} " width="50px" alt="food")" >`;
+
+
+
+    if (Auth0Provider.isAuthenticated) {
+      // console.log("Someone logged in!!!!");
+      let trash_template = "";
+
+      if (Auth0Provider.userInfo.sub == this.creatorId) {
+        // console.log("this user can have a trash can - is owner of recipe");
+        trash_template += `<i class="fas fa-trash-alt fa-lg trash" onclick="app.recipesController.deleteRecipe('${this.recipeId}')"></i>`
+
+        // if the user is logged in
+        img_template = `<img class="card-img-top" src="${this.imageURL}" width="50px" alt="food" onclick="app.recipesController.editRecipe('${this.recipeId}')" > `
+      }
+      loggedIn +=
+        `<div class="card-body d-flex justify-content-between">
+            <div id="${this.recipeId}">
+              <i class="fas fa-heart favorite-color-black" onclick="app.favoritesController.toggleFavorite('${this.recipeId}')"></i>
+            </div> 
+            ${trash_template} 
+          </div>`
+
+    }
     return /*html*/ `
-      <div class="col-sm-6">
+    <div class="col-sm-6">
         <div class="card">
-        <img class="card-img-top"src="${this.imageURL}" width="50px" alt="food" onclick="app.recipesController.viewRecipe('${this.recipeId}')" > `
-      + userAvatar + favAndDelete +
-      ` 
-          <div class="card-body "> 
+         ${img_template} ${userAvatar} ${loggedIn} 
+      <div class="card-body"> 
             <h5 class="card-title">${this.name}</h5>
             <p class="card-text">${this.description}</p>
-            <a href="#" class="btn btn-primary">Comment on this recipe</a>
+            <div id="comments"> </div>
           </div>
           <div class="row card-footer">
             <small class="text-muted">${this.ingredients}</small>
@@ -67,10 +74,11 @@ export class Recipe {
     `;
   }
 
+
+
   static get formTemplate() {
     return /* html */ `
-      <form  class="nice-form border d-inline-flex" onsubmit="app.recipesController.createRecipe()">
-       <input name="_id" type="text" class="d-none" disabled />
+      <form  class="nice-form border d-inline-flex" id="recipeForm" onsubmit="app.recipesController.handleSubmitRecipe()">
         <div class="form-row p-2">
           <input name="_id" type="text" class="d-none" disabled />
           <div class="form-group">

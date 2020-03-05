@@ -13,10 +13,13 @@ class RecipesService {
   //   STORE.State.activeRecipe = aRecipe;
   // }
 
-  async getRecipeById(recipeId) {
-    let data = await resource.get("/api/recipes/" + recipeId);
-    let aRecipe = data.map(r => new Recipe(r));
+  async getRecipeById(id) {
+
+    let aRecipe = STORE.State.recipes.find(r => r.recipeId == id);
+
+    console.log("in getRecipeById, aRecipe is: ", aRecipe)
     if (!aRecipe) {
+      // console.log("in getRecipeById, invalid ID is:", id)
       throw new Error("Invalid Id");
     }
     return aRecipe;
@@ -42,13 +45,22 @@ class RecipesService {
     }
   }
 
-
-  async favRecipe(recipeId) {
-
+  isRecipeInStore(recipeId) {
+    return STORE.State.recipes.findIndex(r => r.recipeId == recipeId);
   }
 
   async updateRecipe(recipeData) {
-    console.log("need to figure out how to update");
+    debugger
+    let data = await resource.put("/api/recipes/" + recipeData.recipeId, recipeData);
+    let recipe = new Recipe(data);
+    console.log("Did we get to....need to figure out how to update");
+    let i = STORE.State.recipes.findIndex(r => r.recipeId == recipeData.recipeId);
+    if (i != -1) {
+      STORE.State.recipes.splice(i, 1, recipe);
+      STORE.commit("recipes", STORE.State.recipes);
+    }
+
+
   }
 
   async getRecipe() {

@@ -6,7 +6,7 @@ const Comment = new Schema(
   {
     content: { type: String },
     deleted: { type: Boolean, default: false },
-    userId: { type: String, required: true },
+    writerId: { type: String, required: true },
     recipeId: { type: String, required: true }
 
     // NOTE If you wish to add additional public properties for profiles do so here
