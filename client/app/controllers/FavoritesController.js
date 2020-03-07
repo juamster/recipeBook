@@ -35,7 +35,7 @@ export class FavoritesController {
         // @ts-ignore
         recipeId: recipeId
       };
-      console.log("creating a favorite");
+      // console.log("creating a favorite");
       await favoritesService.create(favoriteData);
     } catch (error) {
       alert(error);
@@ -45,7 +45,7 @@ export class FavoritesController {
   async getFavorites() {
     try {
       await favoritesService.getFavorites();
-      console.log("@@@just got the favorites- go draw them!")
+      // console.log("@@@just got the favorites- go draw them!")
       FavoritesController.drawFavorites();
     } catch (error) {
       console.log(error);
@@ -75,24 +75,22 @@ export class FavoritesController {
   }
 
   static drawFavorites() {
-    console.log("drawing Favorites icon")
+    // console.log("drawing Favorites icon")
 
     const ids = Object.keys(STORE.State.favorites)
-    console.log("ids from favorites", ids)
+    // console.log("ids from favorites", ids)
+    // breaks if the recipe is not on the screen, like if I select 
+    // show all my recipes, and then none of them is my favorite.
     ids.forEach(id => {
-      console.log("this recipe id is: ", id);
+      // console.log("this recipe id is: ", id);
       let color = 'favorite-color-black';
       if (favoritesService.findFavoriteByRecipeId(id)) {
-        console.log("found a favorite for recipeId: ", id)
+        // console.log("found a favorite for recipeId: ", id)
         color = 'favorite-color-green';
       }
-      console.log("@@ drawFavorites, adding to innerHTML at: ", id);
+
+      // console.log("@@ drawFavorites, adding to innerHTML at: ", id);
       document.getElementById(id).innerHTML = favoritesTemplate(id, color);
-      // let inStore = recipesService.isRecipeInStore(id)
-      // if (inStore != -1) {
-      //   console.log("Found this recipe in the STORE - adding to id.innerHTML", id)
-      //   document.getElementById(id).innerHTML = favoritesTemplate(id, color);
-      // }
     });
   }
 

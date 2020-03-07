@@ -16,12 +16,12 @@ class FavoritesService {
   async getFavorites() {
 
     let data = await resource.get("api/favorites");
-    console.log("**** In getFavorites - these are the favorites from the Database: ", data);
+    //console.log("**** In getFavorites - these are the favorites from the Database: ", data);
     let favorites = {}
     data.forEach(f => favorites[f.recipeId] = f)
 
     STORE.commit("favorites", favorites);
-    console.log("**** In getFavorites - STORE.state.favorites: ", STORE.State.favorites);
+    //console.log("**** In getFavorites - STORE.state.favorites: ", STORE.State.favorites);
   }
 
   async deleteFavorite(favorite) {

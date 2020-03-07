@@ -6,90 +6,98 @@ import { Comments } from "../Models/Comments.js";
 import { RecipesController } from "./RecipesController.js"
 import { recipesService } from "../services/RecipesService.js";
 
+function comment_template(content) {
+  return `
+    <div>
+      <h5>${content}</h5>
+    </div>`;
+}
 
 
 
-
-export class FavoritesController {
+export class CommentsController {
   constructor() {
 
     // NOTE: actually it's ok to getRecipes without logging,
     //  but later, we would need to check this out before //// getting favorites, This is how you would do it if you
     // wanted to make sure that the user was logged in.
     Auth0Provider.onAuth(() => {
-      this.getFavorites();
-      STORE.subscribe("favorites", FavoritesController.drawFavorites);
+      this.getComments();
+      STORE.subscribe("commentsList", this.drawComments);
     })
   }
 
   /*
-  * This should create a favorite for this recipeId
+  * This should add a comment for this recipeId
   */
-  async createFavorite(recipeId) {
+
+  async createComments(recipeId) {
+
+    console.log("@@@@ going to create a comment for recipeId", recipeId)
     try {
-      let favoriteData = {
+      event.preventDefault();
+      let form = event.target;
+      let commentData = {
+        // @ts-ignore
+        content: form.description.value,
         // @ts-ignore
         recipeId: recipeId
+        // @ts-ignore
+        // commentId: form._id.value
       };
-      console.log("creating a favorite");
-      await favoritesService.create(favoriteData);
+
+      console.log("creating a comment", commentData);
+      await commentsService.create(commentData);
+      // @ts-ignore
+      form.reset();
+      document.getElementById("comment-form-" + recipeId).innerHTML = "";
     } catch (error) {
       alert(error);
     }
   }
+  hideForm(recipeId) {
+    document.getElementById("comment-form-" + recipeId).innerHTML = "";
+  }
 
-  async getFavorites() {
+  getCommentsForm(recipeId) {
+    console.log("in getCommentsForm, recipeId is:", recipeId);
+
+    document.getElementById("comment-form-" + recipeId).innerHTML = Comments.commentFormTemplate(recipeId);
+  }
+  async getComments() {
     try {
-      await favoritesService.getFavorites();
-      console.log("@@@just got the favorites- go draw them!")
-      FavoritesController.drawFavorites();
+      await commentsService.getComments();
+      // NOTE: where should we draw the comments? OR should we wait 
+      // for the user to press a button first and go to a new screen
+      console.log("@@@just got the comments- go draw them!")
+
     } catch (error) {
       console.log(error);
     }
   }
 
-  toggleFavorite(recipeId) {
-    let fav = favoritesService.findFavoriteByRecipeId(recipeId)
-    let color;
-    if (fav) {
-      this.deleteFavorite(fav)
-      color = "favorite-color-black";
-    } else {
-      color = "favorite-color-green";
-      this.createFavorite(recipeId)
-    }
-    document.getElementById(recipeId).innerHTML = favoritesTemplate(recipeId, color);
+  hideComments(id) {
+    document.getElementById("comment-" + id).innerHTML = "";
   }
 
-  async deleteFavorite(favorite) {
-    try {
-      // @ts-ignore
-      await favoritesService.deleteFavorite(favorite);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  drawComments(id) {
+    // console.log("Button clicked!!  drawing Comments")
+    if (id) {
 
-  static drawFavorites() {
-    console.log("drawing Favorites icon")
 
-    const ids = Object.keys(STORE.State.favorites)
-    console.log("ids from favorites", ids)
-    ids.forEach(id => {
-      console.log("this recipe id is: ", id);
-      let color = 'favorite-color-black';
-      if (favoritesService.findFavoriteByRecipeId(id)) {
-        console.log("found a favorite for recipeId: ", id)
-        color = 'favorite-color-green';
+      let template = "";
+      let commentArray = STORE.State.commentsList[id]
+      if (commentArray) {
+        commentArray.forEach(c => {
+
+          template += comment_template(c.content);
+        });
+      } else {
+        template = `<div><h5>There are no comments</h5></div>`
       }
-      console.log("@@ drawFavorites, adding to innerHTML at: ", id);
-      document.getElementById(id).innerHTML = favoritesTemplate(id, color);
-      // let inStore = recipesService.isRecipeInStore(id)
-      // if (inStore != -1) {
-      //   console.log("Found this recipe in the STORE - adding to id.innerHTML", id)
-      //   document.getElementById(id).innerHTML = favoritesTemplate(id, color);
-      // }
-    });
+      console.log("In drawComments - id is: ", id)
+      document.getElementById("comment-" + id).innerHTML = template;
+    }
   }
 
 }

@@ -64,11 +64,22 @@ export class Recipe {
       <div class="card-body"> 
             <h5 class="card-title">${this.name}</h5>
             <p class="card-text">${this.description}</p>
-            <div id="comments"> </div>
+            
           </div>
           <div class="row card-footer">
             <small class="text-muted">${this.ingredients}</small>
           </div>
+
+
+          <div>
+            <button type="button" class="btn btn-info btn-sm" onclick="app.commentsController.drawComments('${this.recipeId}')">Show Comments</button>
+            <button type="button" class="btn btn-info btn-sm" onclick="app.commentsController.hideComments('${this.recipeId}')">Hide Comments</button>
+            <button type="button" class="btn btn-info btn-sm" onclick="app.commentsController.getCommentsForm('${this.recipeId}')">Create Comments</button>
+            <div id="comment-${this.recipeId}"> </div>
+
+            <div id="comment-form-${this.recipeId}"></div>
+          </div>
+
         </div>
       </div>
     `;

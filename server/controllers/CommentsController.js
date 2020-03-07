@@ -49,7 +49,7 @@ export class CommentsController extends BaseController {
   }
   async edit(req, res, next) {
     try {
-      let editedData = await commentService.update(req.query, req.body)
+      let editedData = await commentService.update(req.params.id, req.body)
       return res.send(editedData)
     } catch (error) {
       next(error)

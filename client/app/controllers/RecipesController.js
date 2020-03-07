@@ -10,10 +10,12 @@ import { Recipe } from "../Models/Recipe.js";
 // Private Parts
 function drawRecipes() {
   let template = "";
+
   STORE.State.recipes.forEach(recipe => {
     template += recipe.ListTemplate;
   });
   document.getElementById("recipe-main").innerHTML = template;
+
   FavoritesController.drawFavorites();
 }
 
@@ -38,13 +40,25 @@ export class RecipesController {
   showMyRecipes() {
     console.log("drawing only user Recipes")
     let template = "";
+    let hasFavorites = false;
     STORE.State.recipes.forEach(r => {
+      //NOTE: check to see if there is a favorite for this
+      // if so set the flag hasFavorites to true
       if (r.creatorId == Auth0Provider.userInfo.sub) {
+        if (favoritesService.findFavoriteByRecipeId(r.recipeId)) {
+          let hasFavorites = true;
+        }
         template += r.ListTemplate;
       }
     });
     document.getElementById("recipe-main").innerHTML = template;
-    FavoritesController.drawFavorites();
+
+    // NOTE: only do this if hasFavorite is true, otherwise, there
+    //  were no cards drawn with any 
+    if (hasFavorites) {
+      FavoritesController.drawFavorites();
+    }
+
   }
 
   /*
@@ -66,13 +80,16 @@ export class RecipesController {
     FavoritesController.drawFavorites();
   }
 
+  async showAllRecipes() {
+    drawRecipes();
+  }
+
+
   async editRecipe(id) {
     // First bring that form back up
     this.getRecipeForm()
 
     let recipe = STORE.State.recipes.find(r => r.recipeId == id);
-
-
     let form = document.getElementById("recipeForm");
     // @ts-ignore
     form.name.value = recipe.name;

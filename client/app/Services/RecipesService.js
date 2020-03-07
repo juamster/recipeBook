@@ -50,7 +50,7 @@ class RecipesService {
   }
 
   async updateRecipe(recipeData) {
-    debugger
+
     let data = await resource.put("/api/recipes/" + recipeData.recipeId, recipeData);
     let recipe = new Recipe(data);
     console.log("Did we get to....need to figure out how to update");
